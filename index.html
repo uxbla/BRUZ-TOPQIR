@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="uz"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Topqir — Kim yoki nima o'yladingiz?</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f4f1fb;--card:#fff;--tx:#1d1a2b;--mu:#6b6784;--ac:#6c4cf1;--ln:#e2ddf2;--ok:#1f9d63;--no:#d6455d}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#13111c;--card:#1e1b2c;--tx:#f0edfa;--mu:#a29fba;--ac:#9a82ff;--ln:#322e48;--ok:#3ccf8e;--no:#ff6b81}}
+:root[data-theme="dark"]{--bg:#13111c;--card:#1e1b2c;--tx:#f0edfa;--mu:#a29fba;--ac:#9a82ff;--ln:#322e48;--ok:#3ccf8e;--no:#ff6b81}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh;display:flex;justify-content:center;padding:16px}
+.w{width:100%;max-width:440px}
+h1{font-size:22px;text-align:center;margin:8px 0 4px}
+.s{text-align:center;color:var(--mu);font-size:14px;margin:0 0 16px}
+.c{background:var(--card);border:1px solid var(--ln);border-radius:20px;padding:20px}
+.o{text-align:center}
+.q{font-size:20px;font-weight:600;text-align:center;margin:12px 0 18px;line-height:1.35}
+.b{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:14px;margin:8px 0;border-radius:14px;border:1px solid var(--ln);background:var(--bg);color:var(--tx);font-size:16px;font-weight:600;cursor:pointer;text-decoration:none}
+.b:active{transform:scale(.98)}
+.p{background:var(--ac);color:#fff;border-color:var(--ac)}
+.g{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.g .b{margin:0}
+.y{color:var(--ok)}.n{color:var(--no)}
+.bar{height:6px;background:var(--ln);border-radius:9px;overflow:hidden;margin-bottom:14px}
+.bar i{display:block;height:100%;background:var(--ac);transition:width .3s}
+.l{background:none;border:0;color:var(--mu);font-size:14px;cursor:pointer;margin-top:10px;width:100%}
+.av{width:88px;height:88px;border-radius:50%;background:var(--ac);color:#fff;font-size:40px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto}
+.nm{font-size:22px;font-weight:700;text-align:center;margin:12px 0}
+.bx{background:var(--bg);border-radius:12px;padding:12px;margin:8px 0;font-size:14px;line-height:1.45}
+.bx b{display:block;color:var(--ac);font-size:12px;text-transform:uppercase;margin-bottom:4px}
+.im{display:block;width:150px;height:150px;margin:0 auto;border-radius:16px;background:#fff;border:1px solid var(--ln)}
+.sp{width:34px;height:34px;border:4px solid var(--ln);border-top-color:var(--ac);border-radius:50%;margin:24px auto;animation:r 1s linear infinite}
+@keyframes r{to{transform:rotate(360deg)}}
+</style></head><body><div class="w">
+<h1>Topqir</h1><p class="s">Mavzuni tanlang, birini o'ylang — men topaman</p>
+<div class="c" id="app"></div></div>
+<script>
+const C='fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"';
+const IC={Inson:`<circle cx="12" cy="8" r="4" ${C}/><path d="M4 21c0-5 4-7 8-7s8 2 8 7" ${C}/>`,Buyum:`<path d="M3 8l9-5 9 5v8l-9 5-9-5z" ${C}/><path d="M3 8l9 5 9-5M12 13v8" ${C}/>`,Hayvon:`<circle cx="6" cy="10" r="2" ${C}/><circle cx="10" cy="5.5" r="2" ${C}/><circle cx="15" cy="5.5" r="2" ${C}/><circle cx="19" cy="10" r="2" ${C}/><path d="M7 18c0-4 3-6 5-6s5 2 5 6c0 2-2 2-5 2s-5 0-5-2z" ${C}/>`};
+const svg=t=>`<svg width="22" height="22" viewBox="0 0 24 24">${IC[t]}</svg>`;
+const app=document.getElementById("app");
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let cat,log=[],rej=[],cur="",gs=null;
+function home(){log=[];rej=[];app.innerHTML=Object.keys(IC).map(k=>`<button class="b p" onclick="begin('${k}')">${svg(k)} ${k}</button>`).join("")}
+function begin(c){cat=c;log=[];rej=[];next()}
+function err(m){app.innerHTML=`<div class="q">${esc(m)}</div><button class="b p" onclick="next()">Qayta urinish</button><button class="l" onclick="home()">Bosh sahifa</button>`}
+async function next(){
+ app.innerHTML=`<div class="sp"></div><div class="s">O'ylayapman...</div>`;
+ try{const res=await fetch("/api/ask",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({cat,log,rej})});
+  const r=await res.json();if(!res.ok)throw 0;
+  if(r.type==="guess"&&r.name){gs=r;showG()}else if(r.text){cur=r.text;showQ()}else throw 0}
+ catch(e){err("Xatolik yuz berdi.")}
+}
+function showQ(){app.innerHTML=`<div class="bar"><i style="width:${Math.min(100,log.length/22*100)}%"></i></div><div class="s">${log.length+1}-savol · ${cat}</div><div class="q">${esc(cur)}</div><div class="g"><button class="b y" onclick="ans('Ha')">Ha</button><button class="b n" onclick="ans('Yo\\'q')">Yo'q</button><button class="b" onclick="ans('Ba\\'zan')">Ba'zan</button><button class="b" onclick="ans('Umuman bilmayman')">Umuman bilmayman</button></div>${log.length?'<button class="l" onclick="back()">← Orqaga</button>':''}`}
+function ans(a){log.push({q:cur,a});next()}
+function back(){cur=log.pop().q;showQ()}
+async function wikiImg(q){try{const u="https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch="+encodeURIComponent(q)+"&gsrlimit=1&prop=pageimages&piprop=thumbnail&pithumbsize=500&format=json&origin=*";const j=await(await fetch(u)).json();const p=Object.values(j.query.pages)[0];return p.thumbnail&&p.thumbnail.source}catch(e){return null}}
+function showG(){const q=encodeURIComponent(gs.wiki||gs.name);
+ app.innerHTML=`<div class="av" id="av">${esc(gs.name.trim()[0]||"?")}</div><div class="nm">${esc(gs.name)}</div><div class="bx"><b>Ma'lumot</b>${esc(gs.info)}</div><div class="bx"><b>Nima qiladi / nima bilan mashhur</b>${esc(gs.does)}</div><a class="b" target="_blank" rel="noopener" href="https://www.google.com/search?tbm=isch&q=${q}">Ko'proq rasmlar (Google)</a><div class="q" style="font-size:17px">Siz shuni o'yladingizmi?</div><div class="g"><button class="b y" onclick="win()">Ha, to'g'ri</button><button class="b n" onclick="miss()">Yo'q</button></div>`;
+ wikiImg(gs.wiki||gs.name).then(src=>{if(!src)return;const im=new Image();im.className="im";im.alt=gs.name;im.onload=()=>{const a=document.getElementById("av");if(a)a.replaceWith(im)};im.src=src})}
+function win(){app.innerHTML=`<div class="q">Men topdim! Yana o'ynaymizmi?</div><button class="b p" onclick="home()">Qayta o'ynash</button>`}
+function miss(){rej.push(gs.name);if(rej.length>=4){app.innerHTML=`<div class="q">Topa olmadim, siz yengdingiz!</div><button class="b p" onclick="home()">Qayta o'ynash</button>`}else next()}
+home();
+</script></body></html>
